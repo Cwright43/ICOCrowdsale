@@ -13,7 +13,7 @@ describe('Crowdsale', () => {
 	let accounts, deployer, user1
 
 	beforeEach(async () => {
-		// Load contracts - GAAAAY!
+		// Load contracts
 		const Crowdsale = await ethers.getContractFactory('Crowdsale')
 		const Token = await ethers.getContractFactory('Token')
 
@@ -61,7 +61,7 @@ describe('Crowdsale', () => {
 				result = await transaction.wait()
 			})
 
-			it('transfers GAY tokens', async () => {
+			it('transfers tokens', async () => {
 				expect(await token.balanceOf(crowdsale.address)).to.equal(tokens(999990))
 				expect(await token.balanceOf(user1.address)).to.equal(amount)
 		  })

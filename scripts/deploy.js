@@ -13,7 +13,7 @@ async function main() {
   const MAX_SUPPLY = '1000000'
   const PRICE = ethers.utils.parseUnits('0.025', 'ether')
 
-  // Deploy token first, U GAY
+  // Deploy token first
   const Token = await hre.ethers.getContractFactory('Token')
   let token = await Token.deploy('Dapp University', 'DAPP', '1000000')
 
@@ -25,7 +25,7 @@ async function main() {
   const crowdsale = await Crowdsale.deploy(token.address, PRICE, ethers.utils.parseUnits(MAX_SUPPLY, 'ether'))
   await crowdsale.deployed();
 
-  console.log(`Crowdsale deployed BCUZ U GAY: ${crowdsale.address}\n`)
+  console.log(`Crowdsale deployed: ${crowdsale.address}\n`)
 
   // Send tokens to crowdsale
 
