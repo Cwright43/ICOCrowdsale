@@ -8,6 +8,7 @@ import Buy from './Buy';
 import Info from './Info';
 import Loading from './Loading';
 import Progress from './Progress';
+import Whitelist from './Whitelist';
 
 // ABIs
 
@@ -18,15 +19,18 @@ import config from '../config.json'
 
 function App () {
 	
-	const [provider, setProvider ] = useState(null)
-	const [crowdsale, setCrowdsale ] = useState(null)
+	const [ provider, setProvider ] = useState(null)
+	const [ crowdsale, setCrowdsale ] = useState(null)
 
-	const [account, setAccount ] = useState(null)
-	const [accountBalance, setAccountBalance ] = useState(0)
+	const [ account, setAccount ] = useState(null)
+	const [ accountBalance, setAccountBalance ] = useState(0)
 
-	const [price, setPrice ] = useState(0)
-	const [maxTokens, setMaxTokens ] = useState(0)
-	const [tokensSold, setTokensSold ] = useState(0)
+	const [ price, setPrice ] = useState(0)
+	const [ maxTokens, setMaxTokens ] = useState(0)
+	const [ tokensSold, setTokensSold ] = useState(0)
+
+	const [ minBuy, setMinBuy ] = useState(0)
+	const [ maxBuy, setMaxBuy ] = useState(0)
 
 	const [isLoading, setIsLoading] = useState(true)
 
@@ -61,6 +65,14 @@ function App () {
 		const tokensSold = ethers.utils.formatUnits(await crowdsale.tokensSold(), 18)
 		setTokensSold(tokensSold)
 
+		// Fetch minimum token purchase requirement
+		// const minBuy = ethers.utils.formatUnits(await crowdsale.minBuy(), 18)
+		// setMinBuy(minBuy)
+
+		// Fetch maximum token purchase requirement
+		// const maxBuy = ethers.utils.formatUnits(await crowdsale.maxBuy(), 18)
+		// setMaxBuy(maxBuy)
+
 		setIsLoading(false)
 
 	}
@@ -77,12 +89,16 @@ function App () {
 
     	  <h1 className='my-4 text-center'>Introducing DApp Token</h1>
 
+    	  <h4 className='my-1 text-center'>Sale is open 7-15-23 through 7-16-23</h4>
+    	  <h4 className='my-1 text-center'>12:00 AM to 12:00 AM</h4>
+
     	  {isLoading ? (
     	  	<Loading />
     	  	) : (
     	  	<>
 	    	  	<p className='text-center'><strong>Current Price: </strong>{price} ETH</p>
 	    	  	<Buy provider={provider} price={price} crowdsale={crowdsale} setIsLoading={setIsLoading} />
+	    	  	<Whitelist provider={provider} price={price} crowdsale={crowdsale} setIsLoading={setIsLoading} />
 	    	  	<Progress maxTokens={maxTokens} tokensSold={tokensSold} />
     	  	</>
     	  	)}
@@ -92,6 +108,7 @@ function App () {
     	  {account && (
     	  	<Info account={account} accountBalance={accountBalance} />
     	  	)}
+    	  <h3 className='my-4 text-center'>Pre-approved Buyers on Whitelist</h3>
 	    </Container>
 	)
 }

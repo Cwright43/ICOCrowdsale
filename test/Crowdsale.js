@@ -11,6 +11,7 @@ const ether = tokens
 describe('Crowdsale', () => {
 	let crowdsale, token
 	let accounts, deployer, user1
+	let whitelister0, whitelister1, whitelister2
 
 	beforeEach(async () => {
 		// Load contracts
@@ -32,6 +33,19 @@ describe('Crowdsale', () => {
 		// Send tokens to crowdsale
 		let transaction = await token.connect(deployer).transfer(crowdsale.address, tokens(1000000))
 		await transaction.wait()
+		
+		whitelister0 = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+		whitelister1 = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+		whitelister2 = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC'
+
+		transaction = await crowdsale.connect(deployer).whitelist(whitelister0)
+		result = await transaction.wait()
+
+		transaction = await crowdsale.connect(deployer).whitelist(whitelister1)
+		result = await transaction.wait()
+
+		transaction = await crowdsale.connect(deployer).whitelist(whitelister2)
+		result = await transaction.wait()
 
 	})
 
@@ -53,6 +67,8 @@ describe('Crowdsale', () => {
 	describe('Buying Tokens', () => {
 		let transaction, result
 		let amount = tokens(10)
+
+
 
 		describe('Success', () => {
 
@@ -86,6 +102,15 @@ describe('Crowdsale', () => {
 
 			it('rejects insufficient ETH', async () => {
 				await expect(crowdsale.connect(user1).buyTokens(tokens(10), { value: 0 })).to.be.reverted
+			})
+
+			it('rejects below MIN token purchase amount', async () => {
+				await expect(crowdsale.connect(user1).buyTokens(tokens(4), { value: ether(4) })).to.be.reverted
+			})
+
+			it('rejects above MAX token purchase amount', async () => {
+				await expect(crowdsale.connect(user1).buyTokens(tokens(6001), { value: ether(6001) })).to.be.reverted
+				console.log(tokens(10))
 			})
 
 		})
@@ -178,6 +203,26 @@ describe('Crowdsale', () => {
 		})
 
 		
+
+describe('Approving Whitelist', () => {
+		
+		let transaction, result
+
+	describe('Success', () => {
+
+		it('approves an address to the whitelist', async () => {
+			
+			expect(await crowdsale.whitelister(whitelister0)).to.equal(true)
+			expect(await crowdsale.whitelister(whitelister1)).to.equal(true)
+			expect(await crowdsale.whitelister(whitelister2)).to.equal(true)
+
+			console.log(crowdsale.connect(deployer).showTime())
+		})
+
+		})
+
+	})
+
 
 
 

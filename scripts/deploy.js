@@ -11,7 +11,7 @@ async function main() {
   const NAME = 'Dapp University'
   const SYMBOL = 'DAPP'
   const MAX_SUPPLY = '1000000'
-  const PRICE = ethers.utils.parseUnits('0.025', 'ether')
+  const PRICE = ethers.utils.parseUnits('1.0', 'ether')
 
   // Deploy token first
   const Token = await hre.ethers.getContractFactory('Token')
@@ -20,7 +20,7 @@ async function main() {
   await token.deployed()
   console.log(`Token deployed to: ${token.address}\n`)
 
-  // Deploy Crowdsale GAY-AF
+  // Deploy Crowdsale
   const Crowdsale = await hre.ethers.getContractFactory('Crowdsale')
   const crowdsale = await Crowdsale.deploy(token.address, PRICE, ethers.utils.parseUnits(MAX_SUPPLY, 'ether'))
   await crowdsale.deployed();

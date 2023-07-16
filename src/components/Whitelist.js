@@ -9,51 +9,44 @@ import { ethers } from 'ethers';
 
 // We need to access all of these in our Buy component
 
-const Buy = ({ provider, price, crowdsale, setIsLoading }) => {
+const Whitelist = ({ provider, crowdsale, setIsLoading }) => {
 
 	const [amount, setAmount] = useState('0')
 	const [isWaiting, setIsWaiting] = useState(false)
 
-	const buyHandler = async (e) => {
+	const addWhitelist = async (e) => {
 		e.preventDefault()
 		setIsWaiting(true)
-
 
 		try {
 
 		const signer = await provider.getSigner()
 
-		// We need to calcluate the required amount of ETH
-
-		const value = ethers.utils.parseUnits((amount * price).toString(), 'ether')
-		const formattedAmount = ethers.utils.parseUnits(amount.toString(), 'ether')
-
-		const transaction = await crowdsale.connect(signer).buyTokens(formattedAmount, { value: value })
-		await transaction.wait()
-
-		console.log(signer)
+		const whiteAddress = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+		const transaction = await crowdsale.connect(signer).whitelist()
+		// await transaction.wait()
 
 		} catch {
-			window.alert('User rejected or transaction reverted')
+		window.alert('User rejected or transaction reverted U GAY')
 		}
 
 		setIsLoading(true)
-	}
 
+		}
 
 	return (
 
-		<Form onSubmit={buyHandler} style={{ maxWidth: '800px', margin: '50px auto' }}>
+		<Form onSubmit={addWhitelist} style={{ maxWidth: '800px', margin: '50px auto' }}>
 		<Form.Group as={Row}>
 		<Col>
-			<Form.Control type="number" placeholder="Enter amount" onChange={(e) => setAmount(e.target.value)}/>
+			<Form.Control type="" placeholder="User Address" onChange={(e) => setAmount(e.target.value)}/>
 		</Col>
 		<Col className='text-center'>
 		{isWaiting ? (
 			<Spinner animation="border"/>
 		) : (
 		    <Button variant="primary" type="submit" style={{ width: '100%'}}>
-			   Buy Tokens
+			   Add User to Whitelist
 			</Button>
 		)}
 
@@ -64,4 +57,4 @@ const Buy = ({ provider, price, crowdsale, setIsLoading }) => {
 	)
 }
 
-export default Buy;
+export default Whitelist;
