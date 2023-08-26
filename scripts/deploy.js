@@ -34,8 +34,6 @@ async function main() {
 
 console.log(`Tokens transferred to Crowdsale\n`)
 
-
-
 }
 
 // We recommend this pattern to be able to use async/await everywhere

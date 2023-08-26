@@ -18,7 +18,6 @@ const Buy = ({ provider, price, crowdsale, setIsLoading }) => {
 		e.preventDefault()
 		setIsWaiting(true)
 
-
 		try {
 
 		const signer = await provider.getSigner()
@@ -43,7 +42,7 @@ const Buy = ({ provider, price, crowdsale, setIsLoading }) => {
 
 	return (
 
-		<Form onSubmit={buyHandler} style={{ maxWidth: '800px', margin: '50px auto' }}>
+		<Form onSubmit={buyHandler} style={{ maxWidth: '800px', margin: '25px auto' }}>
 		<Form.Group as={Row}>
 		<Col>
 			<Form.Control type="number" placeholder="Enter amount" onChange={(e) => setAmount(e.target.value)}/>

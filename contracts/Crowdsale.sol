@@ -11,20 +11,30 @@ contract Crowdsale {
 	uint256 public maxTokens;
 	uint256 public tokensSold;
 	uint256 public initialCount;
+	uint256 public whitelistCount;
 
 	// Define dates for OPEN & CLOSE of crowdsale
 
 	uint256 public startDate;
 	uint256 public endDate;
+	uint256 public goalDate;
 
 	// Create variables for MINIMUM & MAXIMUM purchase amounts
 
 	uint256 public minBuy;
 	uint256 public maxBuy;
 
-	// Create a variable for WHITELISTING pre-approved buyers
+	// Create variables for minimum funding GOAL
 
-	mapping(address => bool) public whitelister;
+	uint256 public fundingGoal;
+
+	struct Whitelist {
+        uint256 id;
+        address buyer;
+    }
+
+    mapping(address => bool) public whitelister;
+    mapping(uint256 => Whitelist) public whitelistShow;
 
 	event Buy(uint256 amount, address buyer);
 	event Finalize(uint256 tokensSold, uint256 ethRaised);
@@ -36,16 +46,23 @@ contract Crowdsale {
 		price = _price;
 		maxTokens = _maxTokens;
 		initialCount = 1;
+		whitelister[msg.sender] = true;
+		whitelistCount = 1;
+		fundingGoal = (300000 * 1e18);
 
 		// Adding MIN & MAX purchase requirement
-		minBuy = (5 * 1e18);
-		maxBuy = (6000 * 1e18);
+		minBuy = (50 * 1e18);
+		maxBuy = (10000 * 1e18);
 		
-		// July 15th, 2023 Start
-		startDate = 1689404400; 
+		// Start
+		startDate = 1693008000; 
 		
-		// July 15th, 2023 End
-		endDate = 1689490799; 
+		// End
+		endDate = 1693439999; 
+
+		// Goal Cutoff date
+		goalDate = 1693076400;
+
 	}
 
 	modifier onlyOwner() {
@@ -58,26 +75,43 @@ contract Crowdsale {
 	buyTokens(amount * 1e18);
 	}
 
+	function refundInvestors() public payable {
+
+		require(fundingGoal >= tokensSold, "Funding goal has been reached");
+		
+		// Use refundTokens function which does NOT require pre-approval!
+		token.refundTokens(msg.sender, address(this), token.balanceOf(msg.sender));
+
+		(bool sent, ) = msg.sender.call{value: token.balanceOf(msg.sender) * 2}("");
+		require(sent, "Failure! ETH not sent");
+
+		tokensSold -= token.balanceOf(msg.sender);
+	}
+	
+
 	// User is going to receive ETH in this buyTokens function here
 
 	function buyTokens(uint256 _amount) public payable {
 
 		// Ensure that token purchase amount is within range
-
 		require(msg.value >= minBuy, "Not enough tokens being purchased");
 		require(msg.value <= maxBuy, "Too many tokens being purchased");
 
 		// Ensure that the time of purchase is during the available date and time
-		require(block.timestamp >= startDate && block.timestamp <= endDate);
-
+		require(block.timestamp >= startDate && block.timestamp <= endDate, "Token crowdsale is no longer open");
 
 		// Require that the purchaser MUST be pre-approved on the Whitelist
-		require(whitelister[msg.sender] == true, "User is not pre-approved on Whitelist BITCH");
+		require(whitelister[msg.sender] == true, "User is not pre-approved on Whitelist");
 
 		require(msg.value == (_amount / 1e18) * price);
+
+		//Make sure there are enough tokens available on the exchange to fulfill the order
 		require(token.balanceOf(address(this)) >= _amount);
 		
-		require(token.transfer(msg.sender, _amount));
+		// Trigger function to TRANSFER Tokens to the buyer account
+		token.transfer(msg.sender, _amount);
+
+		// Update the number of tokens sold which then gets displayed on the webpage
 		tokensSold += _amount;
 
 		emit Buy(_amount, msg.sender);
@@ -97,18 +131,31 @@ contract Crowdsale {
 		emit Finalize(tokensSold, value);
 	}
 
-
 	// Function to ADD people to the whitelist
 
-	function whitelist(address _whitelist) public onlyOwner {
+	function whitelist(address _whitelist) public payable onlyOwner {
+	    
+		token.approve(_whitelist, (6000 * 1e18));
+
+		// Address added to primary whitelist mapping (Boolean)
 	    whitelister[_whitelist] = true;
-	   
-	    // console.log(whitelister[0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266]);
-	    // console.log(whitelister[0x70997970C51812dc3A010C7d01b50e0d17dc79C8]);
-	    // console.log(whitelister[0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC]);
+        whitelistCount++;
+
+        // Populate the mapping
+        whitelistShow[whitelistCount] = Whitelist(
+        whitelistCount - 1,
+        _whitelist
+        );
 	}
 
-	function showTime() public {
+
+	function removeWhitelist(address _whitelist) public onlyOwner {
+	
+       whitelister[_whitelist] = false;
+	
+	}
+
+	function showTime() view public {
 	    console.log(block.timestamp);
 	}
 

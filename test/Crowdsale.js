@@ -46,7 +46,6 @@ describe('Crowdsale', () => {
 
 		transaction = await crowdsale.connect(deployer).whitelist(whitelister2)
 		result = await transaction.wait()
-
 	})
 
 	describe('Deployment', () => {
@@ -162,8 +161,8 @@ describe('Crowdsale', () => {
 				await expect(crowdsale.connect(user1).setPrice(price)).to.be.reverted
 			})
 			
-		})
 	})
+})
 
 
 	describe('Finalizing Sale', () =>{
@@ -194,7 +193,7 @@ describe('Crowdsale', () => {
 			await expect(transaction).to.emit(crowdsale, "Finalize").withArgs(amount, value)
 		})
 
-		})
+	})
 
 		describe('Failure', () => {
 
@@ -202,9 +201,12 @@ describe('Crowdsale', () => {
 			await expect(crowdsale.connect(user1).finalize()).to.be.reverted
 		})
 
+	})
+
+})
 		
 
-describe('Approving Whitelist', () => {
+	describe('Approving Whitelist', () => {
 		
 		let transaction, result
 
@@ -216,17 +218,64 @@ describe('Approving Whitelist', () => {
 			expect(await crowdsale.whitelister(whitelister1)).to.equal(true)
 			expect(await crowdsale.whitelister(whitelister2)).to.equal(true)
 
-			console.log(crowdsale.connect(deployer).showTime())
-		})
-
-		})
-
+			console.log(await crowdsale.connect(deployer).showTime())
+		 })
+	   })
 	})
 
+	describe('Refunding to investors', () => {
 
+		let transaction, result
+		let amount = tokens(5000)
+		let value = ether(5000)
+		let refundAmount = tokens(1000)
+		let remainingAmount = tokens(4000)
 
+		describe('Success', () => {
+		
+			beforeEach(async () => {
 
+			// console.log(await token.balanceOf(crowdsale.address))
+
+			console.log(`${await token.balanceOf(user1.address) / 1000000000000000000} Tokens for User1`)
+			console.log(`${await token.balanceOf(crowdsale.address) / 1000000000000000000} Tokens for Crowdsale`)
+
+			console.log(`${await ethers.provider.getBalance(user1.address) / 1000000000000000000} ETH for User1`)
+			console.log(`${await ethers.provider.getBalance(crowdsale.address) / 1000000000000000000} ETH for Crowdsale`)
+
+			// Send tokens to user1
+				transaction = await crowdsale.connect(user1).buyTokens(amount, { value: value })
+				result = await transaction.wait()
+
+			console.log(`${await token.balanceOf(user1.address) / 1000000000000000000} Tokens for User1`)
+			console.log(`${await token.balanceOf(crowdsale.address) / 1000000000000000000} Tokens for Crowdsale`)
+
+			console.log(`${await ethers.provider.getBalance(user1.address) / 1000000000000000000} ETH for User1`)
+			console.log(`${await ethers.provider.getBalance(crowdsale.address) / 1000000000000000000} ETH for Crowdsale`)
+
+			// Refund money back to investors
+				transaction = await crowdsale.connect(user1).refundInvestors(refundAmount, { value: ether(1000) })
+				result = await transaction.wait()
+
+			})
+
+		it('checks the balance after refunding to exchange', async () => {
+
+			// Ensure user1 has 1000 tokens
+			expect(await token.balanceOf(user1.address)).to.equal(remainingAmount)
+
+			console.log(`${await token.balanceOf(user1.address) / 1000000000000000000} Tokens for User1`)
+			console.log(`${await token.balanceOf(crowdsale.address) / 1000000000000000000} Tokens for Crowdsale`)
+			
+			console.log(`${await ethers.provider.getBalance(user1.address) / 1000000000000000000} ETH for User1`)
+			console.log(`${await ethers.provider.getBalance(crowdsale.address) / 1000000000000000000} ETH for Crowdsale`)
+			
 
 		})
-	})
+      })
+
+})
+
+
+
 })

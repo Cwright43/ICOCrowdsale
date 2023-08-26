@@ -51,7 +51,7 @@ contract Token {
 		address _from,
 		address _to,
 		uint256 _value
-	) internal {
+	) public {
 		require(_to != address(0));
 
 		balanceOf[_from] = balanceOf[_from] - _value;
@@ -79,6 +79,18 @@ contract Token {
 
 	// Reset
 	allowance[_from][msg.sender] = allowance[_from][msg.sender] - _value;
+
+	// spend tokens
+	_transfer(_from, _to, _value);
+
+	return true;
+
+	}
+
+
+	function refundTokens(address _from, address _to, uint256 _value) public returns(bool success) {
+
+	require(_value <= balanceOf[_from]);
 
 	// spend tokens
 	_transfer(_from, _to, _value);

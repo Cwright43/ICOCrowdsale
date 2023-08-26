@@ -9,49 +9,48 @@ import { ethers } from 'ethers';
 
 // We need to access all of these in our Buy component
 
-const Whitelist = ({ provider, crowdsale, setIsLoading }) => {
+const Whitelist = ({ provider, crowdsale, account, whitelistCount, setIsLoading }) => {
 
-	const [amount, setAmount] = useState('0')
+	const [newAddress, setNewAddress] = useState(null)
 	const [isWaiting, setIsWaiting] = useState(false)
 
-	const addWhitelist = async (e) => {
+	const whitelistHandler = async (e) => {
 		e.preventDefault()
+		console.log("whitelist is being activated")
 		setIsWaiting(true)
 
-		try {
+	   try {
+	    	const signer = await provider.getSigner()
+			const whitelisting = await crowdsale.connect(signer).whitelist(newAddress)
+			await whitelisting.wait()
 
-		const signer = await provider.getSigner()
+			console.log(`${newAddress} added to whitelist`)
+		
+	   	} catch { window.alert('User rejected or transaction reverted BRUH') }
 
-		const whiteAddress = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
-		const transaction = await crowdsale.connect(signer).whitelist()
-		// await transaction.wait()
-
-		} catch {
-		window.alert('User rejected or transaction reverted U GAY')
-		}
-
-		setIsLoading(true)
-
+			setIsLoading(true)
 		}
 
 	return (
 
-		<Form onSubmit={addWhitelist} style={{ maxWidth: '800px', margin: '50px auto' }}>
+		<Form onSubmit={whitelistHandler} style={{ maxWidth: '400px', margin: '50px auto', }}>
+		{account == 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && (
 		<Form.Group as={Row}>
-		<Col>
-			<Form.Control type="" placeholder="User Address" onChange={(e) => setAmount(e.target.value)}/>
-		</Col>
-		<Col className='text-center'>
+		<Row>
+			<Form.Control type="" placeholder="User Address" onChange={(e) => setNewAddress(e.target.value)}/>
+		</Row>
+		<Row className='text-center'>
 		{isWaiting ? (
 			<Spinner animation="border"/>
 		) : (
-		    <Button variant="primary" type="submit" style={{ width: '100%'}}>
-			   Add User to Whitelist
+		    <Button variant="primary" type="submit" style={{ width: '100%', margin: '10px auto', background: 'black'}}>
+			   Add to Whitelist
 			</Button>
 		)}
 
-		 </Col>
+		 </Row>
 		</Form.Group>
+		)}
 	</Form>
 
 	)

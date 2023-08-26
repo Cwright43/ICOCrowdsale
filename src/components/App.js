@@ -9,6 +9,9 @@ import Info from './Info';
 import Loading from './Loading';
 import Progress from './Progress';
 import Whitelist from './Whitelist';
+import WhitelistDisplay from './WhitelistDisplay';
+import DeleteWhitelist from './DeleteWhitelist';
+import Refund from './Refund';
 
 // ABIs
 
@@ -28,11 +31,21 @@ function App () {
 	const [ price, setPrice ] = useState(0)
 	const [ maxTokens, setMaxTokens ] = useState(0)
 	const [ tokensSold, setTokensSold ] = useState(0)
+	const [ saleGoal, setSaleGoal ] = useState(0)
 
 	const [ minBuy, setMinBuy ] = useState(0)
 	const [ maxBuy, setMaxBuy ] = useState(0)
+	const [ whitelistShow, setWhitelistShow ] = useState(null)
+
+	const [ startDate, setStartDate ] = useState(0);
+	const [ endDate, setEndDate ] = useState(0);
+	const [ goalDate, setGoalDate ] = useState(0);
+
+	const [ crowdsaleStatus, setCrowdsaleStatus ] = useState(null)
+
 
 	const [isLoading, setIsLoading] = useState(true)
+	
 
 	const loadBlockchainData = async () => {
 		// Initiate Provider
@@ -65,13 +78,47 @@ function App () {
 		const tokensSold = ethers.utils.formatUnits(await crowdsale.tokensSold(), 18)
 		setTokensSold(tokensSold)
 
-		// Fetch minimum token purchase requirement
-		// const minBuy = ethers.utils.formatUnits(await crowdsale.minBuy(), 18)
-		// setMinBuy(minBuy)
+		// Fetch MIN & MAX purchase amounts from Crowdsale contract
+		const minBuy = ethers.utils.formatUnits(await crowdsale.minBuy(), 18)
+		setMinBuy(minBuy)
 
-		// Fetch maximum token purchase requirement
-		// const maxBuy = ethers.utils.formatUnits(await crowdsale.maxBuy(), 18)
-		// setMaxBuy(maxBuy)
+		const maxBuy = ethers.utils.formatUnits(await crowdsale.maxBuy(), 18)
+		setMaxBuy(maxBuy)
+
+		const fundingGoal = ethers.utils.formatUnits(await crowdsale.fundingGoal(), 18)
+		setSaleGoal(fundingGoal)
+
+		// Fetch start date
+		const start = ethers.utils.formatUnits(await crowdsale.startDate(), 0)
+		setStartDate(start)
+
+		// Fetch end date
+		const end = ethers.utils.formatUnits(await crowdsale.endDate(), 0)
+		setEndDate(end)
+
+		// Fetch goal cutoff date
+		const goal = ethers.utils.formatUnits(await crowdsale.goalDate(), 0)
+		setGoalDate(goal)
+
+
+		const unixTimestamp = Math.floor(Date.now() / 1000)
+
+		if (unixTimestamp > startDate && unixTimestamp < endDate) {
+			setCrowdsaleStatus("OPEN")
+		} else {
+			setCrowdsaleStatus("CLOSED")
+		}
+
+    // Fetch whitelist count
+    const count = await crowdsale.whitelistCount()
+    const items = []
+
+    for(var i = 1; i < count; i++) {
+      const whitelist = await crowdsale.whitelistShow(i + 1)
+      items.push(whitelist)
+    }
+
+    setWhitelistShow(items)
 
 		setIsLoading(false)
 
@@ -87,19 +134,30 @@ function App () {
     	<Container>
     	  <Navigation />
 
-    	  <h1 className='my-4 text-center'>Introducing DApp Token</h1>
-
-    	  <h4 className='my-1 text-center'>Sale is open 7-15-23 through 7-16-23</h4>
-    	  <h4 className='my-1 text-center'>12:00 AM to 12:00 AM</h4>
+    	  <h1 className='my-4 text-center p-3 mb-2 bg-success bg-gradient text-white rounded-2'>Introducing DApp Token</h1>
+    	  <h4 className='my-3 text-center'>Sale is open 8-26-23 through 8-27-23</h4>
+    	  <h6 className='my-3 text-center'>12:00 AM to 12:00 AM</h6>
+    	  <h6 className='text-center my-2'>Crowdsale is currently: <strong>{crowdsaleStatus}</strong></h6>
 
     	  {isLoading ? (
     	  	<Loading />
     	  	) : (
     	  	<>
-	    	  	<p className='text-center'><strong>Current Price: </strong>{price} ETH</p>
+	    	  	<p className='my-4 text-center'><strong>Current Price: </strong>{price} ETH per Token</p>
+	    	  	<p className='my-4 text-center'>Must purchase between <strong>{minBuy}</strong> and <strong>{maxBuy}</strong> tokens</p>
 	    	  	<Buy provider={provider} price={price} crowdsale={crowdsale} setIsLoading={setIsLoading} />
-	    	  	<Whitelist provider={provider} price={price} crowdsale={crowdsale} setIsLoading={setIsLoading} />
-	    	  	<Progress maxTokens={maxTokens} tokensSold={tokensSold} />
+	    	  	<p className='my-1 text-left'><strong>Account Balance BITCH: </strong>{accountBalance}</p>
+	    	  	<Refund 
+	    	  			provider={provider} 
+	    	  			crowdsale={crowdsale} 
+	    	  			account={account} 
+	    	  			accountBalance={accountBalance}
+	    	  			tokensSold={tokensSold}
+	    	  			saleGoal={saleGoal}
+	    	  			goalDate={goalDate}
+	    	  			setIsLoading={setIsLoading} />
+	    	  	<Whitelist provider={provider} crowdsale={crowdsale} account={account} setIsLoading={setIsLoading} />
+	    	  	<Progress maxTokens={maxTokens} tokensSold={tokensSold} saleGoal={saleGoal} startDate={startDate} endDate={endDate} goalDate={goalDate} />
     	  	</>
     	  	)}
 
@@ -108,7 +166,14 @@ function App () {
     	  {account && (
     	  	<Info account={account} accountBalance={accountBalance} />
     	  	)}
-    	  <h3 className='my-4 text-center'>Pre-approved Buyers on Whitelist</h3>
+    	 
+    	  <DeleteWhitelist provider={provider} crowdsale={crowdsale} setIsLoading={setIsLoading} />
+    	  <h3 className='my-4 text-center text-warning p-3 mb-2 bg-primary bg-gradient rounded-2'>Pre-approved Buyers on Whitelist</h3>
+
+              <WhitelistDisplay
+                  whitelistShow={whitelistShow}
+                  setIsLoading={setIsLoading} 
+              />
 	    </Container>
 	)
 }
