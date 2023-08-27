@@ -72,6 +72,24 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_whitelist",
+          "type": "address"
+        }
+      ],
+      "name": "deleteWhitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "endDate",
       "outputs": [
@@ -200,19 +218,6 @@
       "name": "refundInvestors",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_whitelist",
-          "type": "address"
-        }
-      ],
-      "name": "removeWhitelist",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {

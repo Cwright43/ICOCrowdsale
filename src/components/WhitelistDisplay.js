@@ -4,42 +4,20 @@ import { ethers } from 'ethers'
 
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
+import Row from 'react-bootstrap/Row';
 
-const WhitelistDisplay = ({ crowdsale, whitelistShow, setIsLoading }) => {
+const WhitelistDisplay = ({ provider, crowdsale, whitelistShow, account, setIsLoading}) => {
   const [isWaiting, setIsWaiting] = useState(false)
-  const [provider, setProvider] = useState(null)
-  const [signer, setSigner] = useState(null)
 
-  const loadWhitelistData = async () => {
-    // Initiate provider
-    const provider = new ethers.providers.Web3Provider(window.ethereum)
-    setProvider(provider)
-
-    const signer = await provider.getSigner()
-    setSigner(signer)
-    
-
-
-    setIsLoading(false)
-  }
-
-
-  const removeHandler = async (id, buyer) => {
+ const removeHandler = async (id, buyer) => {
 
     try {
 
-    console.log(buyer)
-    console.log(id/1)
-    
-    console.log(signer)
-    
-    
-    console.log(signer)
-
-    // const transaction = await crowdsale.connect(signer).removeWhitelist(id/1)
-    // await transaction.wait()
-    
-
+    id++;
+    const signer = await provider.getSigner()
+    const transaction = await crowdsale.connect(signer).deleteWhitelist(id, buyer)
+    await transaction.wait()
+    console.log(`${buyer} was removed from the whitelist BITCH`)
 
     } catch {
       window.alert('User rejected or transaction reverted - Finalize Handler')
@@ -52,17 +30,44 @@ const WhitelistDisplay = ({ crowdsale, whitelistShow, setIsLoading }) => {
     return (
 
     <Table striped bordered hover responsive>
+      {account == 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && (
       <thead>
         <tr>
-          <th>Whitelist #</th>
           <th>Whitelist Address</th>
           <th>Remove User</th>
         </tr>
       </thead>
+      )}
+      {account == 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && (
       <tbody>
+        {Array.isArray(whitelistShow)
+        ?  whitelistShow.map((whitelist, index) => (
+       
+        <tr key={index}>
+
+        {whitelist.id != 0 &&  (
+          <td>{whitelist.buyer}</td>
+          )}
+        {whitelist.id != 0 &&  (
+          <td>  
+                <Button 
+                  variant="primary" 
+                  style={{ width: '100%' }}
+                  onClick={() => removeHandler(whitelist.id, whitelist.buyer)}
+                  >
+                  Remove User
+                </Button>
+          </td>
+          )}
+         </tr>
+          ))
+        : null}
       </tbody>
+        )}
     </Table>
   );
+
+
 }
 
 export default WhitelistDisplay;

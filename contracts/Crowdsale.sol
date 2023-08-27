@@ -148,12 +148,11 @@ contract Crowdsale {
         );
 	}
 
-
-	function removeWhitelist(address _whitelist) public onlyOwner {
-	
-       whitelister[_whitelist] = false;
-	
-	}
+    function deleteWhitelist(uint256 _id, address _whitelist) public onlyOwner {
+    
+        whitelister[_whitelist] = false;
+        delete whitelistShow[_id];
+    }
 
 	function showTime() view public {
 	    console.log(block.timestamp);

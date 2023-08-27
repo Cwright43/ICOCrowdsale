@@ -18,22 +18,13 @@ const Progress = ({ maxTokens, tokensSold, saleGoal, startDate, endDate, goalDat
 
 	const [isLoading, setIsLoading] = useState(true)
 
-	let crowdsaleStatus
-
-	if (unixTimestamp > startDate && unixTimestamp < endDate) {
-		crowdsaleStatus = "OPEN"
-	} else {
-		crowdsaleStatus = "CLOSED"
-	}
-
 	return(
 		<div className='my-3'>
 		  <ProgressBar now={((tokensSold / maxTokens) * 100)} label={`${(tokensSold / maxTokens) * 100}%`} />
 		  <p className='text-center my-3'>{tokensSold} / {maxTokens} Tokens Sold</p>
 		  <p className='text-center my-3'><strong>{(saleGoal) - (tokensSold)}</strong> Remaining until Goal is Reached</p>
-		  <p className='text-center my-3'>Goal must be reached by <strong>{closeDate.toLocaleDateString("en-US")},  {closeDate.toLocaleTimeString("en-US")}</strong></p>
+		  <p className='text-center my-3'>Goal must be reached by <strong>{closeDate.toLocaleTimeString("en-US")}, {closeDate.toLocaleDateString("en-US")}</strong></p>
 		  <p className='text-center my-2'>Current Date & Time: <strong>{date.toLocaleDateString("en-US")},  {date.toLocaleTimeString("en-US")}</strong></p>
-		  <p className='text-center my-2'>Crowdsale is currently: <strong>{crowdsaleStatus}</strong></p>
 		  
 		</div>
 	)

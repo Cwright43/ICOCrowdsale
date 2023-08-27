@@ -10,7 +10,6 @@ import Loading from './Loading';
 import Progress from './Progress';
 import Whitelist from './Whitelist';
 import WhitelistDisplay from './WhitelistDisplay';
-import DeleteWhitelist from './DeleteWhitelist';
 import Refund from './Refund';
 
 // ABIs
@@ -35,7 +34,7 @@ function App () {
 
 	const [ minBuy, setMinBuy ] = useState(0)
 	const [ maxBuy, setMaxBuy ] = useState(0)
-	const [ whitelistShow, setWhitelistShow ] = useState(null)
+	const [whitelistShow, setWhitelistShow] = useState(1000)
 
 	const [ startDate, setStartDate ] = useState(0);
 	const [ endDate, setEndDate ] = useState(0);
@@ -100,16 +99,7 @@ function App () {
 		const goal = ethers.utils.formatUnits(await crowdsale.goalDate(), 0)
 		setGoalDate(goal)
 
-
-		const unixTimestamp = Math.floor(Date.now() / 1000)
-
-		if (unixTimestamp > startDate && unixTimestamp < endDate) {
-			setCrowdsaleStatus("OPEN")
-		} else {
-			setCrowdsaleStatus("CLOSED")
-		}
-
-    // Fetch whitelist count
+		// Fetch whitelist count
     const count = await crowdsale.whitelistCount()
     const items = []
 
@@ -119,6 +109,16 @@ function App () {
     }
 
     setWhitelistShow(items)
+
+		const unixTimestamp = Math.floor(Date.now() / 1000)
+
+		if (unixTimestamp > start && unixTimestamp < end) {
+			setCrowdsaleStatus("OPEN")
+		} else {
+			setCrowdsaleStatus("CLOSED")
+		}
+
+    
 
 		setIsLoading(false)
 
@@ -132,7 +132,7 @@ function App () {
 
 	return(
     	<Container>
-    	  <Navigation />
+    	  <Navigation crowdsaleStatus={crowdsaleStatus}/>
 
     	  <h1 className='my-4 text-center p-3 mb-2 bg-success bg-gradient text-white rounded-2'>Introducing DApp Token</h1>
     	  <h4 className='my-3 text-center'>Sale is open 8-26-23 through 8-27-23</h4>
@@ -166,12 +166,13 @@ function App () {
     	  {account && (
     	  	<Info account={account} accountBalance={accountBalance} />
     	  	)}
-    	 
-    	  <DeleteWhitelist provider={provider} crowdsale={crowdsale} setIsLoading={setIsLoading} />
     	  <h3 className='my-4 text-center text-warning p-3 mb-2 bg-primary bg-gradient rounded-2'>Pre-approved Buyers on Whitelist</h3>
 
               <WhitelistDisplay
+              		provider={provider}
+              		crowdsale={crowdsale}
                   whitelistShow={whitelistShow}
+                  account={account}
                   setIsLoading={setIsLoading} 
               />
 	    </Container>
